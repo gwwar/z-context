@@ -9,5 +9,12 @@
 
 	// Optional
 	"author": "Kerry Liu",
-	"devtools_page": "devtools/index.html"
+	"devtools_page": "devtools/index.html",
+	"icons": {
+		"48": "icons/icon_48.png",
+		"72": "icons/icon_72.png",
+		"96": "icons/icon_96.png",
+		"144": "icons/icon_144.png",
+		"192": "icons/icon_192.png"
+	}
 }
