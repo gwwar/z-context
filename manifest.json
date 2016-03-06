@@ -1,13 +1,8 @@
 {
-	// Required
 	"manifest_version": 2,
 	"name": "z-context",
 	"version": "1.0.0",
-
-	// Recommended
 	"description": "A Chrome DevTools Extension that displays stacking contexts and z-index values in the elements panel",
-
-	// Optional
 	"author": "Kerry Liu",
 	"devtools_page": "devtools/index.html",
 	"icons": {
