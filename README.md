@@ -12,7 +12,7 @@ or the [w3c spec](https://www.w3.org/TR/CSS2/zindex.html).
 By Using Z-Context, you'll know:
 
 * If the current element creates a stacking context, and why
-* What it's parent stacking context is
+* What its parent stacking context is
 * The z-index value
 
 ## Install
