@@ -20,4 +20,4 @@ Visit https://chrome.google.com/webstore/detail/jigamimbjojkdgnlldajknogfgncplbh
 
 ## See it in action:
 
-![z-context](https://cldup.com/Fewy720tfj.gif)
+![z-context](https://cldup.com/UivlV8iJ5q.gif)
