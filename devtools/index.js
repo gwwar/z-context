@@ -10,7 +10,7 @@ function zContext() {
 			if ( computedStyle.position === 'fixed' ) {
 				return { node: node, reason: 'position: fixed' };
 			} else if ( computedStyle.zIndex !== 'auto' && computedStyle.position !== 'static' ) {
-				return { node: node, reason: 'position: static; z-index: ' + computedStyle.zIndex };
+				return { node: node, reason: 'position: ' + computedStyle.position + '; z-index: ' + computedStyle.zIndex };
 			} else if ( computedStyle.opacity !== '1' ) {
 				return { node: node, reason: 'opacity: ' + computedStyle.opacity };
 			} else if ( computedStyle.transform !== 'none' ) {
