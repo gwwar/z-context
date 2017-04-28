@@ -4,8 +4,8 @@ function zContext() {
 		getClosestStackingContext = function( nodeOrObject ) {
 			var node = nodeOrObject.node || nodeOrObject;
 
-			//the root element (HTML),
-			if( ! node || node.nodeName === 'HTML' ) {
+			//the root element (HTML)
+			if( ! node || node.nodeName === 'HTML' || node.nodeName === '#document-fragment' ) {
 				return { node: document.documentElement, reason: 'root' };
 			}
 
