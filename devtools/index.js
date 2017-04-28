@@ -87,7 +87,7 @@ function zContext() {
 			var selector, tag = element.nodeName.toLowerCase();
 			if( element.id ) {
 				selector = '#' + element.getAttribute( 'id' );
-			} else if( element.className ) {
+			} else if( element.getAttribute( 'class' ) ) {
 				selector = '.' + element.getAttribute( 'class' ).split( ' ' ).join( '.' );
 			}
 			return selector ? tag + selector : tag;
