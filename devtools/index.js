@@ -67,7 +67,7 @@ function zContext() {
 				if ( parentStyle.display === 'flex' || parentStyle.display === 'inline-flex' ) {
 					return {
 						node: node,
-						reason: 'display: ' + computedStyle.display + '; z-index: ' + computedStyle.zIndex
+						reason: 'flex-item; z-index: ' + computedStyle.zIndex
 					};
 				}
 			}
