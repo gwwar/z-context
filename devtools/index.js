@@ -51,8 +51,8 @@ function zContext() {
 				return { node: node, reason: 'isolation: ' + computedStyle.isolation };
 			}
 
-			// specifying any attribute above in will-change even if you don't specify values for these attributes directly
-			if( computedStyle.willChange !== 'auto' ) {
+			// transform or opacity in will-change even if you don't specify values for these attributes directly
+			if( computedStyle.willChange === 'transform' || computedStyle.willChange === 'opacity' ) {
 				return { node: node, reason: 'willChange: ' + computedStyle.willChange };
 			}
 
