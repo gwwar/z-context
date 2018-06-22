@@ -11,9 +11,9 @@ function zContext() {
 
 			var computedStyle = getComputedStyle( node );
 
-			// position: fixed
-			if ( computedStyle.position === 'fixed' ) {
-				return { node: node, reason: 'position: fixed' };
+			// position: fixed or sticky
+			if ( computedStyle.position === 'fixed' || computedStyle.position === 'sticky' ) {
+				return { node: node, reason: 'position: ' + computedStyle.position };
 			}
 
 			// positioned (absolutely or relatively) with a z-index value other than "auto",
