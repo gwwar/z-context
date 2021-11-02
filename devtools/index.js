@@ -2,7 +2,7 @@ function zContext() {
 	let props = {};
 	//Also see: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
 	const getClosestStackingContext = function( nodeOrObject ) {
-		var node = nodeOrObject.node || nodeOrObject;
+		const node = nodeOrObject.node || nodeOrObject;
 
 		// the root element (HTML).
 		if( ! node || node.nodeName === 'HTML') {
@@ -91,7 +91,7 @@ function zContext() {
 
 		// an item with a z-index value other than "auto".
 		if ( computedStyle.zIndex !== 'auto' ) {
-			var parentStyle = getComputedStyle( node.parentNode );
+			const parentStyle = getComputedStyle( node.parentNode );
 			// with a flex|inline-flex parent.
 			if ( parentStyle.display === 'flex' || parentStyle.display === 'inline-flex' ) {
 				return {
@@ -130,7 +130,7 @@ function zContext() {
 		return copy;
 	}
 	const generateSelector = function( element ) {
-		var selector, tag = element.nodeName.toLowerCase();
+		let selector, tag = element.nodeName.toLowerCase();
 		if( element.id ) {
 			selector = '#' + element.getAttribute( 'id' );
 		} else if( element.getAttribute( 'class' ) ) {
