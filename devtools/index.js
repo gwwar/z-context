@@ -106,6 +106,19 @@ function zContext() {
 				};
 			}
 		}
+
+		// contain with a value of layout, or paint, or a composite value that includes either of them
+		const contain = computedStyle.contain;
+		if ( [ 'layout', 'paint', 'strict', 'content' ].indexOf( contain ) > -1 ||
+			contain.indexOf( 'paint' ) > -1 ||
+			contain.indexOf( 'layout' ) > -1
+		) {
+			return {
+				node: node,
+				reason: `contain: ${ contain }`,
+			};
+		}
+
 		return getClosestStackingContext( { node: node.parentNode, reason: 'not a stacking context' } );
 		};
 	const shallowCopy = function( data ) {
