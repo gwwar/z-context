@@ -5,8 +5,13 @@ function zContext() {
 			var node = nodeOrObject.node || nodeOrObject;
 
 			//the root element (HTML)
-			if( ! node || node.nodeName === 'HTML' || node.nodeName === '#document-fragment' ) {
+			if( ! node || node.nodeName === 'HTML') {
 				return { node: document.documentElement, reason: 'root' };
+			}
+
+			// handle shadow root elements
+			if ( node.nodeName === '#document-fragment' ) {
+				return getClosestStackingContext( { node: node.host, reason: 'not a stacking context' } );
 			}
 
 			var computedStyle = getComputedStyle( node );
