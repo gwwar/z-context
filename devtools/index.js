@@ -74,6 +74,11 @@ function zContext() {
 						node: node,
 						reason: 'flex-item; z-index: ' + computedStyle.zIndex
 					};
+				} else if ( parentStyle.grid !== 'none / none / none / row / auto / auto' ) {
+					return {
+						node: node,
+						reason: 'child of grid container; z-index: ' + computedStyle.zIndex
+					};
 				}
 			}
 
