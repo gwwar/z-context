@@ -1,25 +1,41 @@
+/**
+ * Given a node element, generates a hopefully human-identifiable CSS selector.
+ * @param {HTMLElement} element
+ * @returns {string} CSS Selector
+ */
 function generateSelector( element ) {
 	let selector, tag = element.nodeName.toLowerCase();
-	if( element.id ) {
+	if ( element.id ) {
 		selector = '#' + element.getAttribute( 'id' );
-	} else if( element.getAttribute( 'class' ) ) {
+	} else if ( element.getAttribute( 'class' ) ) {
 		selector = '.' + element.getAttribute( 'class' ).split( ' ' ).join( '.' );
 	}
 	return selector ? tag + selector : tag;
 }
 
-//Also see: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
-const getClosestStackingContext = function( nodeOrObject ) {
-	const node = nodeOrObject.node || nodeOrObject;
+/**
+ * @typedef {Object} StackingContext
+ *
+ * @property {Element} node          A DOM Element
+ * @property {string}  reason        Reason for why a stacking context was created
+ */
 
+/**
+ * Recursive function that finds the closest parent stacking context.
+ * See also https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
+ *
+ * @param {Element} node
+ * @returns {StackingContext} The closest parent stacking context
+ */
+const getClosestStackingContext = function ( node ) {
 	// the root element (HTML).
-	if( ! node || node.nodeName === 'HTML') {
+	if ( ! node || node.nodeName === 'HTML' ) {
 		return { node: document.documentElement, reason: 'root' };
 	}
 
 	// handle shadow root elements.
 	if ( node.nodeName === '#document-fragment' ) {
-		return getClosestStackingContext( { node: node.host, reason: 'not a stacking context' } );
+		return getClosestStackingContext( node.host );
 	}
 
 	const computedStyle = getComputedStyle( node );
@@ -88,7 +104,7 @@ const getClosestStackingContext = function( nodeOrObject ) {
 	}
 
 	// transform or opacity in will-change even if you don't specify values for these attributes directly.
-	if( computedStyle.willChange === 'transform' || computedStyle.willChange === 'opacity' ) {
+	if ( computedStyle.willChange === 'transform' || computedStyle.willChange === 'opacity' ) {
 		return { node: node, reason: `willChange: ${ computedStyle.willChange }` };
 	}
 
@@ -127,21 +143,36 @@ const getClosestStackingContext = function( nodeOrObject ) {
 		};
 	}
 
-	return getClosestStackingContext( { node: node.parentNode, reason: 'not a stacking context' } );
+	return getClosestStackingContext( node.parentNode );
 };
 
-function shallowCopy( data ) {
-	const props = Object.getOwnPropertyNames( data );
-	const copy = { __proto__: null };
-	for( let i = 0; i < props.length; ++i ) {
-		copy[ props[ i ] ] = data[ props[ i ] ];
-	}
-	return copy;
-}
+/**
+ * @typedef {Object} ZContextSidebarContents
+ *
+ * @property {boolean} [createsStackingContext]        True if element creates a stacking context.
+ * @property {string}  [createsStackingContextReason]  Reason for why a stacking context is created.
+ * @property {string}  [parentStackingContext]         Human readable CSS selector of the parent stacking context.
+ * @property {number}  [z-index]                       The current z-index value
+ */
 
+/**
+ * @typedef {Object} ZContextUpdateSidebarAction
+ *
+ * @property {string}                  type     The action name
+ * @property {ZContextSidebarContents} sidebar  Contents to update the z-index pane with
+ */
+
+/**
+ * Given an element, looks up the related z-index and stacking context information and returns a ZContextUpdateSidebarAction
+ *
+ * @param {Element} element
+ * @returns {ZContextUpdateSidebarAction}
+ */
 function zContext( element ) {
-	let props = {};
-	if( element && element.nodeType === 1 ) {
+	if ( ! element || element.nodeType !== 1 ) {
+		return { type: 'Z_CONTEXT_UPDATE_SIDEBAR', sidebar: {} };
+	}
+	if ( element && element.nodeType === 1 ) {
 		const closest = getClosestStackingContext( element );
 		const createsStackingContext = element === closest.node;
 		const reason = createsStackingContext ? closest.reason : 'not a stacking context';
@@ -150,25 +181,44 @@ function zContext( element ) {
 		if ( createsStackingContext && element.nodeName !== 'HTML' ) {
 			parentContext = getClosestStackingContext( $0.parentNode ).node;
 		}
-		props = {
-			createsStackingContext,
-			createsStackingContextReason: reason,
-			parentStackingContext: generateSelector( parentContext ),
-			'z-index': computedStyle.zIndex !== 'auto' ? parseInt( computedStyle.zIndex, 10 ) : computedStyle.zIndex
+		return {
+			type: 'Z_CONTEXT_UPDATE_SIDEBAR',
+			sidebar: {
+				createsStackingContext,
+				createsStackingContextReason: reason,
+				parentStackingContext: generateSelector( parentContext ),
+				'z-index': computedStyle.zIndex !== 'auto' ? parseInt( computedStyle.zIndex, 10 ) : computedStyle.zIndex
+			},
 		};
 	}
-	return shallowCopy( props );
 }
 
-let _zContextElement;
+/**
+ * Stores the last selected element $0 in this frame.
+ */
+let _lastElement;
+
+/**
+ * Invoked by the devtools panel when a new element is selected. This function sends a new message to update the
+ * z-index pane with the z-index stacking context information if we detect that an element has been selected
+ * in this frame.
+ *
+ * @param {node} element
+ * @returns void
+ */
 function setSelectedElement( element ) {
-	// if the selected element is the same, let handlers in other iframe contexts handle it instead.
-	if ( element !== _zContextElement ) {
-		_zContextElement = element;
+	// If the selected element is the same, let handlers in other iframe contexts handle it instead.
+	if ( element !== undefined && element !== _lastElement ) {
+		_lastElement = element;
 		chrome.extension.sendMessage( zContext( element ) );
 	}
 }
 
-chrome.extension.onMessage.addListener(function (message, sender) {
-	chrome.extension.sendMessage( { iframe: window.location.href } );
-});
+/**
+ * Listen for the z-index devtools panel to be created, before registering the frame.
+ */
+chrome.extension.onMessage.addListener( function ( message ) {
+	if ( message.type === 'Z_CONTEXT_SIDEBAR_INIT' ) {
+		chrome.extension.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
+	}
+} );
