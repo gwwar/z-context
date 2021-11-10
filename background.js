@@ -1,6 +1,6 @@
-chrome.extension.onConnect.addListener( function ( port ) {
-	port.onMessage.addListener( function ( message ) {
-		// Pass message from devtools to active tab
+const passMessagesFromDevtoolsToTab = ( port ) => {
+
+	const sendMessagesToActiveTab = ( message ) => {
 		chrome.tabs.query( {
 			currentWindow: true,
 			active: true,
@@ -9,9 +9,19 @@ chrome.extension.onConnect.addListener( function ( port ) {
 				chrome.tabs.sendMessage( tabs[ 0 ].id, message );
 			}
 		} );
+	};
+
+	const sendMessagesToDevTools = ( message, sender ) => {
+		port.postMessage( message );
+	};
+	port.onMessage.addListener( sendMessagesToActiveTab );
+
+	// When a tab is closed, we should remove related listeners
+	port.onDisconnect.addListener( function() {
+		chrome.runtime.onMessage.removeListener( sendMessagesToDevTools );
 	} );
 	// Pass content script messages back to devtools
-	chrome.extension.onMessage.addListener( function ( message, sender ) {
-		port.postMessage( message );
-	} );
-} );
+	chrome.runtime.onMessage.addListener( sendMessagesToDevTools );
+}
+
+chrome.runtime.onConnect.addListener( passMessagesFromDevtoolsToTab );
