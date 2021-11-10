@@ -4,7 +4,7 @@
 chrome.devtools.panels.elements.createSidebarPane(
 	"Z-Index",
 	function ( sidebar ) {
-		const port = chrome.extension.connect( { name: "Z-Context" } );
+		const port = chrome.runtime.connect( { name: "Z-Context" } );
 		// Listen for messages sent from background.js.
 		port.onMessage.addListener( function ( msg ) {
 			switch ( msg.type ) {

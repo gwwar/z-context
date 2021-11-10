@@ -5,9 +5,6 @@
 	"description": "A Chrome DevTools Extension that displays stacking contexts and z-index values in the elements panel",
 	"author": "gwwar",
 	"devtools_page": "devtools/index.html",
-	"permissions": [
-		"tabs"
-	],
 	"background": {
 		"scripts": [
 			"background.js"
