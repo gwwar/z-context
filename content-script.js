@@ -70,6 +70,11 @@ const getClosestStackingContext = function ( node ) {
 		return { node: node, reason: `filter: ${ computedStyle.filter }` };
 	}
 
+	// elements with a backdrop-filter value other than "none".
+	if ( computedStyle.backdropFilter !== 'none' ) {
+		return { node: node, reason: `backdrop-filter: ${ computedStyle.backdropFilter }` };
+	}
+
 	// elements with a perspective value other than "none".
 	if ( computedStyle.perspective !== 'none' ) {
 		return { node: node, reason: `perspective: ${ computedStyle.perspective }` };
