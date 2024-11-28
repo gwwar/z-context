@@ -45,6 +45,11 @@ const getClosestStackingContext = function ( node ) {
 		return { node: node, reason: `position: ${ computedStyle.position }` };
 	}
 
+	// container-type: size or inline-size
+	if ( computedStyle.containerType === 'size' || computedStyle.containerType === 'inline-size' ) {
+		return { node: node, reason: `container-type: ${computedStyle.containerType}`}
+	}
+
 	// positioned (absolutely or relatively) with a z-index value other than "auto".
 	if ( computedStyle.zIndex !== 'auto' && computedStyle.position !== 'static' ) {
 		return { node: node, reason: `position: ${ computedStyle.position }; z-index: ${ computedStyle.zIndex }` };
@@ -60,6 +65,21 @@ const getClosestStackingContext = function ( node ) {
 		return { node: node, reason: `transform: ${ computedStyle.transform }` };
 	}
 
+	// elements with a scale value other than "none"
+	if ( computedStyle.scale !== 'none' ) {
+		return { node: node, reason: `scale: ${ computedStyle.scale }` };
+	}
+
+	// elements with a rotate value other than "none"
+	if ( computedStyle.rotate !== 'none' ) {
+		return { node: node, reason: `rotate: ${ computedStyle.rotate }` };
+	}
+
+	// elements with a translate value other than "none"
+	if ( computedStyle.translate !== 'none' ) {
+		return { node: node, reason: `translate: ${ computedStyle.translate }` };
+	}
+
 	// elements with a mix-blend-mode value other than "normal".
 	if ( computedStyle.mixBlendMode !== 'normal' ) {
 		return { node: node, reason: `mixBlendMode: ${ computedStyle.mixBlendMode }` };
@@ -68,6 +88,11 @@ const getClosestStackingContext = function ( node ) {
 	// elements with a filter value other than "none".
 	if ( computedStyle.filter !== 'none' ) {
 		return { node: node, reason: `filter: ${ computedStyle.filter }` };
+	}
+
+	// elements with a backdropFilter value other than "none".
+	if ( computedStyle.backdropFilter !== 'none' ) {
+		return { node: node, reason: `backdropFilter: ${ computedStyle.backdropFilter }` };
 	}
 
 	// elements with a perspective value other than "none".
@@ -187,6 +212,7 @@ function zContext( element ) {
 				createsStackingContext,
 				createsStackingContextReason: reason,
 				parentStackingContext: generateSelector( parentContext ),
+				currentNode: generateSelector( element ),
 				'z-index': computedStyle.zIndex !== 'auto' ? parseInt( computedStyle.zIndex, 10 ) : computedStyle.zIndex
 			},
 		};
@@ -210,15 +236,28 @@ function setSelectedElement( element ) {
 	// If the selected element is the same, let handlers in other iframe contexts handle it instead.
 	if ( element !== undefined && element !== _lastElement ) {
 		_lastElement = element;
-		chrome.extension.sendMessage( zContext( element ) );
+		chrome.runtime.sendMessage( zContext( element ) );
 	}
 }
 
 /**
  * Listen for the z-index devtools panel to be created, before registering the frame.
  */
-chrome.extension.onMessage.addListener( function ( message ) {
+chrome.runtime.onMessage.addListener( function ( message ) {
 	if ( message.type === 'Z_CONTEXT_SIDEBAR_INIT' ) {
-		chrome.extension.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
+		chrome.runtime.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
 	}
 } );
+
+/**
+ * Reconnect to the z-index devtools panel when we navigate to another page
+ */
+function addLocationObserver(callback) {
+	const config = { attributes: false, childList: true, subtree: false }
+	const observer = new MutationObserver(callback)
+	observer.observe(document.body, config)
+}
+const reregisterOnNavigation = () => {
+	chrome.runtime.sendMessage( { type: 'Z_CONTEXT_NAVIGATION' } );
+}
+addLocationObserver(reregisterOnNavigation)

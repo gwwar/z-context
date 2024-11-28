@@ -29,6 +29,10 @@ chrome.devtools.panels.elements.createSidebarPane(
 					sidebar.setObject( msg.sidebar );
 					break;
 				}
+				case 'Z_CONTEXT_NAVIGATION': {
+					port.postMessage( { type: 'Z_CONTEXT_SIDEBAR_INIT' } );
+					break;
+				}
 			}
 		} );
 		// Announce to content-scripts.js that they should register with their frame urls.
