@@ -187,6 +187,7 @@ function zContext( element ) {
 				createsStackingContext,
 				createsStackingContextReason: reason,
 				parentStackingContext: generateSelector( parentContext ),
+				currentNode: generateSelector( element ),
 				'z-index': computedStyle.zIndex !== 'auto' ? parseInt( computedStyle.zIndex, 10 ) : computedStyle.zIndex
 			},
 		};
@@ -210,15 +211,15 @@ function setSelectedElement( element ) {
 	// If the selected element is the same, let handlers in other iframe contexts handle it instead.
 	if ( element !== undefined && element !== _lastElement ) {
 		_lastElement = element;
-		chrome.extension.sendMessage( zContext( element ) );
+		chrome.runtime.sendMessage( zContext( element ) );
 	}
 }
 
 /**
  * Listen for the z-index devtools panel to be created, before registering the frame.
  */
-chrome.extension.onMessage.addListener( function ( message ) {
+chrome.runtime.onMessage.addListener( function ( message ) {
 	if ( message.type === 'Z_CONTEXT_SIDEBAR_INIT' ) {
-		chrome.extension.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
+		chrome.runtime.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
 	}
 } );
