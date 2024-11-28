@@ -223,3 +223,16 @@ chrome.runtime.onMessage.addListener( function ( message ) {
 		chrome.runtime.sendMessage( { type: 'Z_CONTEXT_REGISTER_FRAME', url: window.location.href } );
 	}
 } );
+
+/**
+ * Reconnect to the z-index devtools panel when we navigate to another page
+ */
+function addLocationObserver(callback) {
+	const config = { attributes: false, childList: true, subtree: false }
+	const observer = new MutationObserver(callback)
+	observer.observe(document.body, config)
+}
+const reregisterOnNavigation = () => {
+	chrome.runtime.sendMessage( { type: 'Z_CONTEXT_NAVIGATION' } );
+}
+addLocationObserver(reregisterOnNavigation)
