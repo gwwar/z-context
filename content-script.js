@@ -45,6 +45,11 @@ const getClosestStackingContext = function ( node ) {
 		return { node: node, reason: `position: ${ computedStyle.position }` };
 	}
 
+	// container-type: size or inline-size
+	if ( computedStyle.containerType === 'size' || computedStyle.containerType === 'inline-size' ) {
+		return { node: node, reason: `container-type: ${computedStyle.containerType}`}
+	}
+
 	// positioned (absolutely or relatively) with a z-index value other than "auto".
 	if ( computedStyle.zIndex !== 'auto' && computedStyle.position !== 'static' ) {
 		return { node: node, reason: `position: ${ computedStyle.position }; z-index: ${ computedStyle.zIndex }` };
@@ -60,6 +65,21 @@ const getClosestStackingContext = function ( node ) {
 		return { node: node, reason: `transform: ${ computedStyle.transform }` };
 	}
 
+	// elements with a scale value other than "none"
+	if ( computedStyle.scale !== 'none' ) {
+		return { node: node, reason: `scale: ${ computedStyle.scale }` };
+	}
+
+	// elements with a rotate value other than "none"
+	if ( computedStyle.rotate !== 'none' ) {
+		return { node: node, reason: `rotate: ${ computedStyle.rotate }` };
+	}
+
+	// elements with a translate value other than "none"
+	if ( computedStyle.translate !== 'none' ) {
+		return { node: node, reason: `translate: ${ computedStyle.translate }` };
+	}
+
 	// elements with a mix-blend-mode value other than "normal".
 	if ( computedStyle.mixBlendMode !== 'normal' ) {
 		return { node: node, reason: `mixBlendMode: ${ computedStyle.mixBlendMode }` };
@@ -68,6 +88,11 @@ const getClosestStackingContext = function ( node ) {
 	// elements with a filter value other than "none".
 	if ( computedStyle.filter !== 'none' ) {
 		return { node: node, reason: `filter: ${ computedStyle.filter }` };
+	}
+
+	// elements with a backdropFilter value other than "none".
+	if ( computedStyle.backdropFilter !== 'none' ) {
+		return { node: node, reason: `backdropFilter: ${ computedStyle.backdropFilter }` };
 	}
 
 	// elements with a perspective value other than "none".
